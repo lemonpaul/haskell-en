@@ -3,8 +3,13 @@ import Control.Monad
 import System.Environment
 import Data.List
 import Data.Maybe
-import Text.Regex.TDFA
+import Text.Regex.PCRE.Heavy
+import Data.ByteString.Char8 (pack)
+import Data.Either (rights)
 
+
+fromString :: String -> Regex
+fromString string = rights [compileM (pack string) []] !! 0
 
 main :: IO()
 main = do
@@ -21,7 +26,7 @@ main = do
         else do
             handle <- openFile "en.dic" ReadMode
             contents <- hGetContents handle
-            let translationLine = if definition =~ "[а-я]"
+            let translationLine = if definition =~ fromString "[а-я]"
                                     then error "TODO"
                                     else tranlsateEn definition (lines contents)
             let translation = drop (length definition + 1) translationLine
@@ -37,13 +42,13 @@ tranlsateEn definition (l:ls) = if isPrefixOf definition l
 
 parse :: String -> IO()
 parse string = do
-    let first = "(I|II|III|IV|V|VI|VII|VIII)"
-    let firstArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
-    let second = "(1\\.|2\\.|3\\.|4\\.|5\\.|6\\.)"
+    let first = fromString "(I|II|III|IV|V|VI|VII|VIII|IX)"
+    let firstArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+    let second = fromString "(1\\.|2\\.|3\\.|4\\.|5\\.|6\\.)"
     let secondArray = ["1.", "2.", "3.", "4.", "5.", "6."]
     let secondRegexArray = ["1\\.", "2\\.", "3\\.", "4\\.", "5\\.", "6\\."]
-    let third = "(noun|pron\\.|v\\.|adj\\.|adv\\.|prep\\.|cj.\\.|interj\\.|predic\\.num\\.)"
-    let fourth = "[1-9]|[1-2]\\d|3[0-4]\\)"
+    let thirdString = "(noun|pron\\.|v\\.|adj\\.|adv\\.|prep\\.|cj.\\.|interj\\.|predic\\.num\\.)"
+    let fourth = fromString "[1-9]|[1-2]\\d|3[0-4]\\)"
     let fourthArray = ["1)", "2)", "3)", "4)", "5)", "6)", "7)", "8)", "9)", "10)", "11)", "12)", "13)", "14)", "15)", "16)", "17)", "18)", "19)", "20)", "21)", "22)", "23)", "24)", "25)", "26)", "27)", "28)", "29)", "30)", "31)", "32)", "33)", "34)"]
     let fourthRegexArray = ["1\\)", "2\\)", "3\\)", "4\\)", "5\\)", "6\\)", "7\\)", "8\\)", "9\\)", "10\\)", "11\\)", "12\\)", "13\\)", "14\\)", "15\\)", "16\\)", "17\\)", "18\\)", "19\\)", "20\\)", "21\\)", "22\\)", "23\\)", "24\\)", "25\\)", "26\\)", "27\\)", "\\28)", "\\29)", "\\30)", "\\31)", "\\32)", "\\33)", "\\34)"]
     let beginFrom = words string !! 0
@@ -55,16 +60,16 @@ parse string = do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = "^" ++ (firstArray !! index) ++ "( +).*(" ++ (firstArray !! (index + 1)) ++ ".*)$"
+            let regex = fromString ("^" ++ (firstArray !! index) ++ "( +).*?(" ++ (firstArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
-                let spaces = (\(_, _, _, a) -> a !! 9) (string =~ regex :: (String, String, String, [String]))
-                let part = (\(_, _, _, a) -> a !! 1) (string =~ regex :: (String, String, String, [String]))
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+                let part = (\[(_, a)] -> a !! 1) (scan regex string :: [(String, [String])])
                 parse $ take (length string - length part - 1) string
                 parse part
             else do
-                let regex = "^" ++ (firstArray !! index) ++ "( +).*$"
-                let spaces = (\(_, _, _, a) -> a !! 0) (string =~ regex :: (String, String, String, [String]))
+                let regex = fromString ("^" ++ (firstArray !! index) ++ "( +).*$")
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
                 putStrLn beginFrom
                 parse $ drop (length beginFrom + length spaces) string
     else if beginFrom =~ second :: Bool
@@ -75,23 +80,23 @@ parse string = do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = "^" ++ (secondRegexArray !! index) ++ "( +).*(" ++ (secondRegexArray !! (index + 1)) ++ ".*)$"
+            let regex = fromString ("^" ++ (secondRegexArray !! index) ++ "( +).*?(" ++ (secondRegexArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
-                let spaces = (\(_, _, _, a) -> a !! 0) (string =~ regex :: (String, String, String, [String]))
-                let part = (\(_, _, _, a) -> a !! 1) (string =~ regex :: (String, String, String, [String]))
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+                let part = (\[(_, a)] -> a !! 1) (scan regex string :: [(String, [String])])
                 parse $ take (length string - length part - 1) string
                 parse part
             else do
-                let regex = "^" ++ (secondRegexArray !! index) ++ "( +).*$"
-                let spaces = (\(_, _, _, a) -> a !! 0) (string =~ regex :: (String, String, String, [String]))
+                let regex = fromString ("^" ++ (secondRegexArray !! index) ++ "( +).*$")
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
                 putStrLn beginFrom
                 parse $ drop (length beginFrom + length spaces) string
-    else if beginFrom =~ third :: Bool
+    else if beginFrom =~ fromString thirdString :: Bool
     then do
         let prevBeginFrom = beginFrom
-        let beginFrom = if string =~ (third ++ ";") :: Bool
-                        then (string =~ (third ++ "(; " ++ third ++ ")*") :: String)
+        let beginFrom = if string =~ fromString (thirdString ++ ";") :: Bool
+                        then (\[(a, _)] -> a) (scan (fromString (thirdString ++ "(; " ++ thirdString ++ ")*")) string :: [(String, [String])])
                         else prevBeginFrom
         putStrLn beginFrom
         parse $ drop (length beginFrom + 1) string
@@ -103,16 +108,16 @@ parse string = do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = "^" ++ (fourthRegexArray !! index) ++ "( +).*(" ++ (fourthRegexArray !! (index + 1)) ++ ".*)$"
+            let regex = fromString ("^" ++ (fourthRegexArray !! index) ++ "( +).*?(" ++ (fourthRegexArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
-                let spaces = (\(_, _, _, a) -> a !! 0) (string =~ regex :: (String, String, String, [String]))
-                let part = (\(_, _, _, a) -> a !! 1) (string =~ regex :: (String, String, String, [String]))
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+                let part = (\[(_, a)] -> a !! 1) (scan regex string :: [(String, [String])])
                 parse $ take (length string - length part - 1) string
                 parse part
             else do
-                let regex = "^" ++ (fourthRegexArray !! index) ++ "( +).*$"
-                let spaces = (\(_, _, _, a) -> a !! 0) (string =~ regex :: (String, String, String, [String]))
+                let regex = fromString ("^" ++ (fourthRegexArray !! index) ++ "( +).*$")
+                let spaces = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
                 putStrLn beginFrom
                 parse $ drop (length beginFrom + length spaces) string
     else
