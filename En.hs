@@ -47,7 +47,7 @@ parse string = do
     let second = fromString "(1\\.|2\\.|3\\.|4\\.|5\\.|6\\.)"
     let secondArray = ["1.", "2.", "3.", "4.", "5.", "6."]
     let secondRegexArray = ["1\\.", "2\\.", "3\\.", "4\\.", "5\\.", "6\\."]
-    let thirdString = "(noun|pron\\.|v\\.|adj\\.|adv\\.|prep\\.|cj.\\.|interj\\.|predic\\.num\\.)"
+    let thirdString = "(noun|pron\\.|v\\.|adj\\.|adv\\.|prep\\.|cj\\.|interj\\.|predic\\.|num\\.)"
     let fourth = fromString "[1-9]|[1-2]\\d|3[0-4]\\)"
     let fourthArray = ["1)", "2)", "3)", "4)", "5)", "6)", "7)", "8)", "9)", "10)", "11)", "12)", "13)", "14)", "15)", "16)", "17)", "18)", "19)", "20)", "21)", "22)", "23)", "24)", "25)", "26)", "27)", "28)", "29)", "30)", "31)", "32)", "33)", "34)"]
     let fourthRegexArray = ["1\\)", "2\\)", "3\\)", "4\\)", "5\\)", "6\\)", "7\\)", "8\\)", "9\\)", "10\\)", "11\\)", "12\\)", "13\\)", "14\\)", "15\\)", "16\\)", "17\\)", "18\\)", "19\\)", "20\\)", "21\\)", "22\\)", "23\\)", "24\\)", "25\\)", "26\\)", "27\\)", "\\28)", "\\29)", "\\30)", "\\31)", "\\32)", "\\33)", "\\34)"]
@@ -96,10 +96,11 @@ parse string = do
     then do
         let prevBeginFrom = beginFrom
         let beginFrom = if string =~ fromString (thirdString ++ ";") :: Bool
-                        then (\[(a, _)] -> a) (scan (fromString (thirdString ++ "(; " ++ thirdString ++ ")*")) string :: [(String, [String])])
+                        then (\[(a, _)] -> a) (scan (fromString (thirdString ++ "(; +" ++ thirdString ++ ")*")) string :: [(String, [String])])
                         else prevBeginFrom
+        let spaces = (\[(_, a)] -> a !! 0) (scan (fromString (beginFrom ++ "( +).*")) string :: [(String, [String])])
         putStrLn beginFrom
-        parse $ drop (length beginFrom + 1) string
+        parse $ drop (length beginFrom + length spaces) string
     else if beginFrom =~ fourth :: Bool
     then do
         let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) fourthArray
