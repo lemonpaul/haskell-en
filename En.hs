@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 import System.IO  
 import Control.Monad
 import System.Environment
@@ -6,11 +8,16 @@ import Data.Maybe
 import Text.Regex.PCRE.Heavy
 import Data.ByteString.UTF8 (fromString)
 import Data.Either (rights)
-
+import Data.Text (replace, pack, unpack)
 
 regexp :: String -> Regex
 regexp string = rights [compileM (fromString string) []] !! 0
 
+escape :: String -> String
+escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
+
+fromArray :: [String] -> String
+fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
 
 main :: IO()
 main = do
@@ -48,28 +55,29 @@ tranlsateRu definition (l:ls) = if l =~ (regexp definition)
                                         then l
                                         else tranlsateRu definition ls
 
-
 parse :: String -> IO()
 parse string = do
-    let first = regexp "(I|II|III|IV|V|VI|VII|VIII|IX)"
-    let firstArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
-    let second = regexp "(1\\.|2\\.|3\\.|4\\.|5\\.|6\\.)"
-    let secondArray = ["1.", "2.", "3.", "4.", "5.", "6."]
-    let secondRegexArray = ["1\\.", "2\\.", "3\\.", "4\\.", "5\\.", "6\\."]
-    let thirdString = "(noun|pron\\.|v\\.|adj\\.|adv\\.|prep\\.|cj\\.|interj\\.|predic\\.|num\\.)"
-    let fourth = regexp "[1-9]|[1-2]\\d|3[0-4]\\)"
-    let fourthArray = ["1)", "2)", "3)", "4)", "5)", "6)", "7)", "8)", "9)", "10)", "11)", "12)", "13)", "14)", "15)", "16)", "17)", "18)", "19)", "20)", "21)", "22)", "23)", "24)", "25)", "26)", "27)", "28)", "29)", "30)", "31)", "32)", "33)", "34)"]
-    let fourthRegexArray = ["1\\)", "2\\)", "3\\)", "4\\)", "5\\)", "6\\)", "7\\)", "8\\)", "9\\)", "10\\)", "11\\)", "12\\)", "13\\)", "14\\)", "15\\)", "16\\)", "17\\)", "18\\)", "19\\)", "20\\)", "21\\)", "22\\)", "23\\)", "24\\)", "25\\)", "26\\)", "27\\)", "\\28)", "\\29)", "\\30)", "\\31)", "\\32)", "\\33)", "\\34)"]
+    let romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+    let romanRegex = regexp $ fromArray romanArray
+    let arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
+    let arabicDotRegexArray = map escape arabicDotArray
+    let arabicDotRegex = regexp $ fromArray arabicDotArray
+    let speechPartArray = ["noun", "porn.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num."]
+    let speechPartString = fromArray speechPartArray
+    let speechPartRegex = regexp speechPartString
+    let arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
+    let arabicBracketRegexArray = map escape arabicBracketArray
+    let arabicBracketRegex = regexp $ fromArray arabicBracketArray
     let beginFrom = words string !! 0
-    if beginFrom =~ first :: Bool
+    if beginFrom =~ romanRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) firstArray
-        if (index == length firstArray - 1) || (index == -1)
+        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) romanArray
+        if (index == length romanArray - 1) || (index == -1)
         then do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = regexp ("^" ++ (firstArray !! index) ++ " .*?(" ++ (firstArray !! (index + 1)) ++ ".*)$")
+            let regex = regexp ("^" ++ (romanArray !! index) ++ " .*?(" ++ (romanArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
                 let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
@@ -78,15 +86,15 @@ parse string = do
             else do
                 putStrLn beginFrom
                 parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ second :: Bool
+    else if beginFrom =~ arabicDotRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) secondArray
-        if (index == length secondArray - 1) || (index == -1)
+        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) arabicDotArray
+        if (index == length arabicDotArray - 1) || (index == -1)
         then do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = regexp ("^" ++ (secondRegexArray !! index) ++ " .*?(" ++ (secondRegexArray !! (index + 1)) ++ ".*)$")
+            let regex = regexp ("^" ++ (arabicDotRegexArray !! index) ++ " .*?(" ++ (arabicDotRegexArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
                 let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
@@ -95,23 +103,23 @@ parse string = do
             else do
                 putStrLn beginFrom
                 parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ regexp thirdString :: Bool
+    else if beginFrom =~ speechPartRegex :: Bool
     then do
         let prevBeginFrom = beginFrom
-        let beginFrom = if string =~ regexp (thirdString ++ ";") :: Bool
-                        then (\[(a, _)] -> a) (scan (regexp (thirdString ++ "(; " ++ thirdString ++ ")*")) string :: [(String, [String])])
+        let beginFrom = if string =~ regexp (speechPartString ++ ";") :: Bool
+                        then (\[(a, _)] -> a) (scan (regexp (speechPartString ++ "(; " ++ speechPartString ++ ")*")) string :: [(String, [String])])
                         else prevBeginFrom
         putStrLn beginFrom
         parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ fourth :: Bool
+    else if beginFrom =~ arabicBracketRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) fourthArray
-        if (index == length fourthArray - 1) || (index == -1)
+        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) arabicBracketArray
+        if (index == length arabicBracketArray - 1) || (index == -1)
         then do
             putStrLn beginFrom
             parse $ drop (length beginFrom + 1) string
         else do
-            let regex = regexp ("^" ++ (fourthRegexArray !! index) ++ " .*?(" ++ (fourthRegexArray !! (index + 1)) ++ ".*)$")
+            let regex = regexp ("^" ++ (arabicBracketRegexArray !! index) ++ " .*?(" ++ (arabicBracketRegexArray !! (index + 1)) ++ ".*)$")
             if string =~ regex :: Bool
             then do
                 let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
