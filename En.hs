@@ -55,78 +55,53 @@ tranlsateRu definition (l:ls) = if l =~ (regexp definition)
                                         then l
                                         else tranlsateRu definition ls
 
+parseNumeric :: [String] -> String -> IO()
+parseNumeric array string = do
+    let begin = words string !! 0
+    let regexArray = map escape array
+    let index = fromMaybe (-1) $ findIndex (\a -> (begin == a)) array
+    if (index == length array - 1) || (index == -1)
+    then do
+        putStrLn begin
+        parse $ drop (length begin + 1) string
+    else do
+        let regex = regexp ("^" ++ (regexArray !! index) ++ " .*?(" ++ (regexArray !! (index + 1)) ++ ".*)$")
+        if string =~ regex :: Bool
+        then do
+            let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+            parse $ take (length string - length part - 1) string
+            parse part
+        else do
+            putStrLn begin
+            parse $ drop (length begin + 1) string
+
 parse :: String -> IO()
 parse string = do
     let romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
-    let romanRegex = regexp $ fromArray romanArray
     let arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
-    let arabicDotRegexArray = map escape arabicDotArray
-    let arabicDotRegex = regexp $ fromArray arabicDotArray
+    let arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
     let speechPartArray = ["noun", "porn.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num."]
     let speechPartString = fromArray speechPartArray
-    let speechPartRegex = regexp speechPartString
-    let arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
-    let arabicBracketRegexArray = map escape arabicBracketArray
+    let romanRegex = regexp $ fromArray romanArray
+    let arabicDotRegex = regexp $ fromArray arabicDotArray
     let arabicBracketRegex = regexp $ fromArray arabicBracketArray
-    let beginFrom = words string !! 0
-    if beginFrom =~ romanRegex :: Bool
+    let speechPartRegex = regexp speechPartString
+    if words string !! 0 =~ romanRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) romanArray
-        if (index == length romanArray - 1) || (index == -1)
-        then do
-            putStrLn beginFrom
-            parse $ drop (length beginFrom + 1) string
-        else do
-            let regex = regexp ("^" ++ (romanArray !! index) ++ " .*?(" ++ (romanArray !! (index + 1)) ++ ".*)$")
-            if string =~ regex :: Bool
-            then do
-                let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-                parse $ take (length string - length part - 1) string
-                parse part
-            else do
-                putStrLn beginFrom
-                parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ arabicDotRegex :: Bool
+        parseNumeric romanArray string
+    else if words string !! 0 =~ arabicDotRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) arabicDotArray
-        if (index == length arabicDotArray - 1) || (index == -1)
-        then do
-            putStrLn beginFrom
-            parse $ drop (length beginFrom + 1) string
-        else do
-            let regex = regexp ("^" ++ (arabicDotRegexArray !! index) ++ " .*?(" ++ (arabicDotRegexArray !! (index + 1)) ++ ".*)$")
-            if string =~ regex :: Bool
-            then do
-                let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-                parse $ take (length string - length part - 1) string
-                parse part
-            else do
-                putStrLn beginFrom
-                parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ speechPartRegex :: Bool
+        parseNumeric arabicDotArray string
+    else if words string !! 0 =~ speechPartRegex :: Bool
     then do
-        let prevBeginFrom = beginFrom
+        let prevBeginFrom = words string !! 0
         let beginFrom = if string =~ regexp (speechPartString ++ ";") :: Bool
                         then (\[(a, _)] -> a) (scan (regexp (speechPartString ++ "(; " ++ speechPartString ++ ")*")) string :: [(String, [String])])
                         else prevBeginFrom
         putStrLn beginFrom
         parse $ drop (length beginFrom + 1) string
-    else if beginFrom =~ arabicBracketRegex :: Bool
+    else if words string !! 0 =~ arabicBracketRegex :: Bool
     then do
-        let index = fromMaybe (-1) $ findIndex (\a -> (beginFrom == a)) arabicBracketArray
-        if (index == length arabicBracketArray - 1) || (index == -1)
-        then do
-            putStrLn beginFrom
-            parse $ drop (length beginFrom + 1) string
-        else do
-            let regex = regexp ("^" ++ (arabicBracketRegexArray !! index) ++ " .*?(" ++ (arabicBracketRegexArray !! (index + 1)) ++ ".*)$")
-            if string =~ regex :: Bool
-            then do
-                let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-                parse $ take (length string - length part - 1) string
-                parse part
-            else do
-                putStrLn beginFrom
-                parse $ drop (length beginFrom + 1) string
+        parseNumeric arabicBracketArray string
     else
         putStrLn string
