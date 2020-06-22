@@ -10,14 +10,15 @@ import Data.ByteString.UTF8 (fromString)
 import Data.Either (rights)
 import Data.Text (replace, pack, unpack)
 
-regexp :: String -> Regex
-regexp string = rights [compileM (fromString string) []] !! 0
-
-escape :: String -> String
-escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
-
-fromArray :: [String] -> String
-fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
+romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
+arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
+speechPartArray = ["noun", "porn.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num."]
+speechPartString = fromArray speechPartArray
+romanRegex = regexp $ fromArray romanArray
+arabicDotRegex = regexp $ fromArray arabicDotArray
+arabicBracketRegex = regexp $ fromArray arabicBracketArray
+speechPartRegex = regexp speechPartString
 
 main :: IO()
 main = do
@@ -42,6 +43,15 @@ main = do
                 else
                     putStrLn "Translation is not found."
             hClose handle
+
+regexp :: String -> Regex
+regexp string = rights [compileM (fromString string) []] !! 0
+
+escape :: String -> String
+escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
+
+fromArray :: [String] -> String
+fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
 
 tranlsateEn :: String -> [String] -> String
 tranlsateEn definition [] = ""
@@ -77,15 +87,6 @@ parseNumeric array string = do
 
 parse :: String -> IO()
 parse string = do
-    let romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
-    let arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
-    let arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
-    let speechPartArray = ["noun", "porn.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num."]
-    let speechPartString = fromArray speechPartArray
-    let romanRegex = regexp $ fromArray romanArray
-    let arabicDotRegex = regexp $ fromArray arabicDotArray
-    let arabicBracketRegex = regexp $ fromArray arabicBracketArray
-    let speechPartRegex = regexp speechPartString
     if words string !! 0 =~ romanRegex :: Bool
     then do
         parseNumeric romanArray string
