@@ -11,14 +11,21 @@ import Data.Either (rights)
 import Data.Text (replace, pack, unpack)
 
 romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+romanRegex = regexp ("^" ++ fromArray romanArray)
+
 arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
+arabicDotRegex = regexp ("^" ++ fromArray arabicDotArray)
+
 arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
+arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
+
 speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf."]
 speechPartString = fromArray speechPartArray
-romanRegex = regexp $ fromArray romanArray
-arabicDotRegex = regexp $ fromArray arabicDotArray
-arabicBracketRegex = regexp $ fromArray arabicBracketArray
 speechPartRegex = regexp speechPartString
+
+pastArray = ["past", "past part.", "part."]
+pastString = fromArray pastArray
+pastRegex = regexp pastString
 
 main :: IO()
 main = do
@@ -51,7 +58,7 @@ escape :: String -> String
 escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
 
 fromArray :: [String] -> String
-fromArray array = "^(" ++ escape (intercalate "|" array) ++ ")"
+fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
 
 tranlsateEn :: String -> [String] -> String
 tranlsateEn definition [] = ""
@@ -96,9 +103,14 @@ parse string = do
     else if words string !! 0 =~ speechPartRegex :: Bool
     then do
         let prevBeginFrom = words string !! 0
-        let beginFrom = if string =~ regexp (speechPartString ++ ";") :: Bool
-                        then (\[(a, _)] -> a) (scan (regexp ("(" ++ speechPartString ++ "; )*" ++ speechPartString ++ ";?")) string :: [(String, [String])])
+        let beginFrom = if string =~ regexp ("^" ++ speechPartString ++ ";") :: Bool
+                        then (\[(a, _)] -> a) (scan (regexp ("^(" ++ speechPartString ++ "; )*" ++ speechPartString ++ ";?")) string :: [(String, [String])])
                         else prevBeginFrom
+        putStrLn beginFrom
+        parse $ drop (length beginFrom + 1) string
+    else if string =~ regexp ("^" ++ pastString) :: Bool
+    then do
+        let beginFrom = (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ "( [a-z]+[.,]?); )*" ++ pastString ++ "( [a-z]+[.,]?)+")) string :: [(String, [String])])
         putStrLn beginFrom
         parse $ drop (length beginFrom + 1) string
     else if words string !! 0 =~ arabicBracketRegex :: Bool
