@@ -23,7 +23,7 @@ speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "inter
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
-pastArray = ["past", "past part.", "part."]
+pastArray = ["past", "past part.", "past and part."]
 pastString = fromArray pastArray
 pastRegex = regexp ("^" ++ pastString)
 
