@@ -13,7 +13,7 @@ import Data.Text (replace, pack, unpack)
 romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
 arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
 arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
-speechPartArray = ["noun", "porn.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num."]
+speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf."]
 speechPartString = fromArray speechPartArray
 romanRegex = regexp $ fromArray romanArray
 arabicDotRegex = regexp $ fromArray arabicDotArray
