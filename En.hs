@@ -51,7 +51,7 @@ escape :: String -> String
 escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
 
 fromArray :: [String] -> String
-fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
+fromArray array = "^(" ++ escape (intercalate "|" array) ++ ")"
 
 tranlsateEn :: String -> [String] -> String
 tranlsateEn definition [] = ""
@@ -97,7 +97,7 @@ parse string = do
     then do
         let prevBeginFrom = words string !! 0
         let beginFrom = if string =~ regexp (speechPartString ++ ";") :: Bool
-                        then (\[(a, _)] -> a) (scan (regexp (speechPartString ++ "(; " ++ speechPartString ++ ")*")) string :: [(String, [String])])
+                        then (\[(a, _)] -> a) (scan (regexp ("(" ++ speechPartString ++ "; )*" ++ speechPartString ++ ";?")) string :: [(String, [String])])
                         else prevBeginFrom
         putStrLn beginFrom
         parse $ drop (length beginFrom + 1) string
