@@ -27,6 +27,10 @@ pastArray = ["past", "past part.", "past and part."]
 pastString = fromArray pastArray
 pastRegex = regexp ("^" ++ pastString)
 
+isPastArray = ["past от", "past p. от", "past, past part. of", "past part. of"]
+isPastString = fromArray isPastArray
+isPastRegex = regexp ("^" ++ isPastString)
+
 main :: IO()
 main = do
     args <- getArgs
@@ -42,7 +46,7 @@ main = do
         else do
             handle <- openFile "en.dic" ReadMode
             contents <- hGetContents handle
-            let translationLine = tranlsateEn definition (lines contents)
+            let translationLine = translateEn definition (lines contents)
             if translationLine /= ""
                 then do
                     let translation = drop (length definition + 1) translationLine
@@ -50,6 +54,31 @@ main = do
                 else
                     putStrLn "Translation is not found."
             hClose handle
+
+main2 :: IO()
+main2 = do
+    handle <- openFile "test.dic" ReadMode
+    contents <- hGetContents handle
+    let array = (lines contents)
+    translateArray array
+    hClose handle
+
+translateArray :: [String] -> IO()
+translateArray [] = do
+    return ()
+translateArray (x:xs) = do
+    handle <- openFile "en.dic" ReadMode
+    contents <- hGetContents handle
+    let translationLine = translateEn x (lines contents)
+    if translationLine /= ""
+        then do
+            putStrLn x
+            let translation = drop (length x + 1) translationLine
+            parse translation
+        else
+            putStrLn "Translation is not found."
+    hClose handle
+    translateArray xs
 
 regexp :: String -> Regex
 regexp string = rights [compileM (fromString string) []] !! 0
@@ -60,17 +89,21 @@ escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
 fromArray :: [String] -> String
 fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
 
-tranlsateEn :: String -> [String] -> String
-tranlsateEn definition [] = ""
-tranlsateEn definition (l:ls) = if isPrefixOf definition l
+translateEn :: String -> [String] -> String
+translateEn definition [] = ""
+translateEn definition (l:ls) = if isPrefixOf definition l
                                         then l
-                                        else tranlsateEn definition ls
+                                        else translateEn definition ls
 
-tranlsateRu :: String -> [String] -> String
-tranlsateRu definition [] = ""
-tranlsateRu definition (l:ls) = if l =~ (regexp definition)
+translateRu :: String -> [String] -> String
+translateRu definition [] = ""
+translateRu definition (l:ls) = if l =~ (regexp definition)
                                         then l
-                                        else tranlsateRu definition ls
+                                        else translateRu definition ls
+
+parseIsPast :: String -> IO()
+parseIsPast string = do
+    putStrLn string
 
 parseNumeric :: [String] -> String -> IO()
 parseNumeric array string = do
@@ -94,10 +127,9 @@ parseNumeric array string = do
 
 parseSpeechPart :: String -> IO()
 parseSpeechPart string = do
-    let prevBeginFrom = words string !! 0
     let beginFrom = if string =~ regexp ("^" ++ speechPartString ++ ";") :: Bool
                     then (\[(a, _)] -> a) (scan (regexp ("^(" ++ speechPartString ++ "; )*" ++ speechPartString ++ ";?")) string :: [(String, [String])])
-                    else prevBeginFrom
+                    else words string !! 0
     putStrLn beginFrom
     parse $ drop (length beginFrom + 1) string
 
@@ -109,7 +141,10 @@ parsePast string = do
 
 parse :: String -> IO()
 parse string = do
-    if string =~ romanRegex :: Bool
+    if string =~ isPastRegex :: Bool
+    then do
+        parseIsPast string
+    else if string =~ romanRegex :: Bool
     then do
         parseNumeric romanArray string
     else if string =~ arabicDotRegex :: Bool
