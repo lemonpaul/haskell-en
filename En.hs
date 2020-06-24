@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import System.IO  
+module En where
+
+import System.IO
 import Control.Monad
 import System.Environment
 import Data.List
@@ -23,11 +25,11 @@ speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "inter
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
-pastArray = ["past", "past part.", "past and part."]
+pastArray = ["past, past part. only", "past and past part.", "past", "past part."]
 pastString = fromArray pastArray
 pastRegex = regexp ("^" ++ pastString)
 
-isPastArray = ["past от", "past p. от", "past, past part. of", "past part. of"]
+isPastArray = ["past от", "past p. от", "past, past part. of", "past part. of", "past of"]
 isPastString = fromArray isPastArray
 isPastRegex = regexp ("^" ++ isPastString)
 
@@ -54,31 +56,6 @@ main = do
                 else
                     putStrLn "Translation is not found."
             hClose handle
-
-main2 :: IO()
-main2 = do
-    handle <- openFile "test.dic" ReadMode
-    contents <- hGetContents handle
-    let array = (lines contents)
-    translateArray array
-    hClose handle
-
-translateArray :: [String] -> IO()
-translateArray [] = do
-    return ()
-translateArray (x:xs) = do
-    handle <- openFile "en.dic" ReadMode
-    contents <- hGetContents handle
-    let translationLine = translateEn x (lines contents)
-    if translationLine /= ""
-        then do
-            putStrLn x
-            let translation = drop (length x + 1) translationLine
-            parse translation
-        else
-            putStrLn "Translation is not found."
-    hClose handle
-    translateArray xs
 
 regexp :: String -> Regex
 regexp string = rights [compileM (fromString string) []] !! 0
@@ -115,7 +92,7 @@ parseNumeric array string = do
         putStrLn begin
         parse $ drop (length begin + 1) string
     else do
-        let regex = regexp ("^" ++ (regexArray !! index) ++ " .*?(" ++ (regexArray !! (index + 1)) ++ ".*)$")
+        let regex = regexp ("^" ++ (regexArray !! index) ++ " .*?(" ++ (regexArray !! (index + 1)) ++ " .*)$")
         if string =~ regex :: Bool
         then do
             let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
@@ -135,7 +112,9 @@ parseSpeechPart string = do
 
 parsePast :: String -> IO()
 parsePast string = do
-    let beginFrom = (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ "( [a-z]+[.,]?); )*" ++ pastString ++ "( [a-z]+[.,]?)+")) string :: [(String, [String])])
+    let beginFrom = if string =~ regexp ("^past, past part\\. only")
+                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ ")")) string :: [(String, [String])])
+                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ "( [a-z-]+[.,]?); )*" ++ pastString ++ "( [a-z-]+[.,]?)")) string :: [(String, [String])])
     putStrLn beginFrom
     parse $ drop (length beginFrom + 1) string
 
