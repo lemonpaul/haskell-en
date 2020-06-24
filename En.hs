@@ -29,7 +29,7 @@ pastArray = ["past, past part. only", "past and past part.", "past", "past part.
 pastString = fromArray pastArray
 pastRegex = regexp ("^" ++ pastString)
 
-isPastArray = ["past от", "past p. от", "past, past part. of", "past part. of", "past of"]
+isPastArray = ["past от", "past p. от", "past и past p. от", "past, past part. of", "past part. of", "past of"]
 isPastString = fromArray isPastArray
 isPastRegex = regexp ("^" ++ isPastString)
 
