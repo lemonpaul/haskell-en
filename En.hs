@@ -21,6 +21,9 @@ arabicDotRegex = regexp ("^" ++ fromArray arabicDotArray)
 arabicBracketArray = map (++ ")") $ map show $ take 34 $ iterate (+1) 1
 arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 
+cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
+cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
+
 speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf."]
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
@@ -135,8 +138,11 @@ parse string = do
     else if string =~ pastRegex :: Bool
     then do
         parsePast string
-    else if words string !! 0 =~ arabicBracketRegex :: Bool
+    else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
+    else if string =~ cyrillicBracketRegex :: Bool
+    then do
+        parseNumeric cyrillicBracketArray string        
     else
         putStrLn string
