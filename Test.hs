@@ -1,5 +1,3 @@
-module Test where
-
 import En (translateEn, parse)
 import System.IO
 
