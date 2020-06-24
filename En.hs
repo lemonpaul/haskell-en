@@ -28,14 +28,6 @@ speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "inter
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
-pastArray = ["past, past part. only", "past and past part.", "past", "past part."]
-pastString = fromArray pastArray
-pastRegex = regexp ("^" ++ pastString)
-
-isPastArray = ["past от", "past p. от", "past и past p. от", "past, past part. of", "past part. of", "past of"]
-isPastString = fromArray isPastArray
-isPastRegex = regexp ("^" ++ isPastString)
-
 main :: IO()
 main = do
     args <- getArgs
@@ -81,10 +73,6 @@ translateRu definition (l:ls) = if l =~ (regexp definition)
                                         then l
                                         else translateRu definition ls
 
-parseIsPast :: String -> IO()
-parseIsPast string = do
-    putStrLn string
-
 parseNumeric :: [String] -> String -> IO()
 parseNumeric array string = do
     let begin = words string !! 0
@@ -113,20 +101,9 @@ parseSpeechPart string = do
     putStrLn beginFrom
     parse $ drop (length beginFrom + 1) string
 
-parsePast :: String -> IO()
-parsePast string = do
-    let beginFrom = if string =~ regexp ("^past, past part\\. only")
-                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ ")")) string :: [(String, [String])])
-                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ pastString ++ "( [a-z-]+[.,]?); )*" ++ pastString ++ "( [a-z-]+[.,]?)")) string :: [(String, [String])])
-    putStrLn beginFrom
-    parse $ drop (length beginFrom + 1) string
-
 parse :: String -> IO()
 parse string = do
-    if string =~ isPastRegex :: Bool
-    then do
-        parseIsPast string
-    else if string =~ romanRegex :: Bool
+    if string =~ romanRegex :: Bool
     then do
         parseNumeric romanArray string
     else if string =~ arabicDotRegex :: Bool
@@ -135,9 +112,6 @@ parse string = do
     else if string =~ speechPartRegex :: Bool
     then do
         parseSpeechPart string
-    else if string =~ pastRegex :: Bool
-    then do
-        parsePast string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
