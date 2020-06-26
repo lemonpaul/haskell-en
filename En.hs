@@ -24,7 +24,7 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
-speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf."]
+speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf.", "artic."]
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
