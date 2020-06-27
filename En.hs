@@ -24,6 +24,10 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
+langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "lat.", "roman", "rus.", "s.-afr.", "scot.", "span."]
+langString = fromArray langArray
+langRegex = regexp ("^" ++ langString)
+
 speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf.", "pref.", "artic."]
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
@@ -93,10 +97,10 @@ parseNumeric array string = do
             putStrLn begin
             parse $ drop (length begin + 1) string
 
-parseSpeechPart :: String -> IO()
-parseSpeechPart string = do
-    let beginFrom = if string =~ regexp ("^" ++ speechPartString ++ ";") :: Bool
-                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ speechPartString ++ "; )*" ++ speechPartString ++ ";?")) string :: [(String, [String])])
+parseWords :: String -> String -> IO()
+parseWords word string = do
+    let beginFrom = if string =~ regexp ("^" ++ word ++ ";") :: Bool
+                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ "; )*" ++ word ++ ";?")) string :: [(String, [String])])
                     else words string !! 0
     putStrLn beginFrom
     parse $ drop (length beginFrom + 1) string
@@ -106,12 +110,15 @@ parse string = do
     if string =~ romanRegex :: Bool
     then do
         parseNumeric romanArray string
+    else if string =~ langRegex :: Bool
+    then do
+        parseWords langString string
     else if string =~ arabicDotRegex :: Bool
     then do
         parseNumeric arabicDotArray string
     else if string =~ speechPartRegex :: Bool
     then do
-        parseSpeechPart string
+        parseWords speechPartString string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
