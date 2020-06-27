@@ -35,6 +35,9 @@ speechPartRegex = regexp ("^" ++ speechPartString)
 pastFormString = "(past and past part\\.( [a-z'-]+,)*( [a-z'-]+)|past part\\.( [a-z'-]+,)*( [a-z'-]+)|past sg\\. [a-z'-]+, pl\\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))"
 pastFormRegex = regexp ("^" ++ pastFormString ++ ";? ")
 
+usuString = "(usu\\. (past part\\.|pres\\. part\\.|refl\\. or pass\\.|refl\\.|pass\\.|pl\\.|mil\\.|amer\\.|predic\\.|imp\\.|neg\\.|collect\\.|joc\\.|fig\\.|disapprov\\.|disdain\\.|abbr\\.( [a-z]\\.)+|([a-z]+,? )*[a-z]+))"
+usuRegex = regexp ("^" ++ usuString)
+
 main :: IO()
 main = do
     args <- getArgs
@@ -99,6 +102,14 @@ parseNumeric array string = do
         else do
             putStrLn begin
             parse $ drop (length begin + 1) string
+
+parseWord :: String -> String -> IO()
+parseWord :: word string = do
+    let beginFrom = if string =~ regexp ("^" ++ word ++ ";") :: Bool
+                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ";)")) string :: [(String, [String])])
+                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ")")) string :: [(String, [String])])
+    putStrLn beginFrom
+    parse $ drop (length beginFrom + 1) string
 
 parseWords :: String -> String -> IO()
 parseWords word string = do
