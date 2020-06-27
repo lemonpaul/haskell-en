@@ -41,6 +41,9 @@ usuRegex = regexp ("^" ++ usuString)
 alsoString = "(also (sandal wood|a pair of crutches|as sg\\.|fig\\.|tech\\.|geol\\.|refl\\.|leg\\.|gram\\.|astr\\.|joc\\.|pl\\.|sg\\.|mil\\.|physiol\\.|no\\.|iron\\.|phys\\.|zool\\.|philos\\.|math\\.|[a-zA-Z-]+))"
 alsoRegex = regexp ("^" ++ alsoString)
 
+oftString = "(oft\\.( [a-z]+\\.?)*)"
+oftRegex = regexp ("^" ++ oftString)
+
 main :: IO()
 main = do
     args <- getArgs
@@ -139,6 +142,9 @@ parse string = do
     else if string =~ usuRegex :: Bool
     then do
         parseWord usuString string
+    else if string =~ oftRegex :: Bool
+    then do
+        parseWord oftString string
     else if string =~ pastFormRegex :: Bool
     then do
         parseWords pastFormString string
