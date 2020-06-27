@@ -104,7 +104,7 @@ parseNumeric array string = do
             parse $ drop (length begin + 1) string
 
 parseWord :: String -> String -> IO()
-parseWord :: word string = do
+parseWord word string = do
     let beginFrom = if string =~ regexp ("^" ++ word ++ ";") :: Bool
                     then (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ";)")) string :: [(String, [String])])
                     else (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ")")) string :: [(String, [String])])
@@ -133,6 +133,9 @@ parse string = do
     else if string =~ speechPartRegex :: Bool
     then do
         parseWords speechPartString string
+    else if string =~ usuRegex :: Bool
+    then do
+        parseWord usuString string
     else if string =~ pastFormRegex :: Bool
     then do
         parseWords pastFormString string
