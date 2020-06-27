@@ -38,6 +38,9 @@ pastFormRegex = regexp ("^" ++ pastFormString ++ ";? ")
 usuString = "(usu\\. (past part\\.|pres\\. part\\.|refl\\. or pass\\.|refl\\.|pass\\.|pl\\.|mil\\.|amer\\.|predic\\.|imp\\.|neg\\.|collect\\.|joc\\.|fig\\.|disapprov\\.|disdain\\.|abbr\\.( [a-z]\\.)+|([a-z]+,? )*[a-z]+))"
 usuRegex = regexp ("^" ++ usuString)
 
+alsoString = "(also (sandal wood|a pair of crutches|as sg\\.|fig\\.|tech\\.|geol\\.|refl\\.|leg\\.|gram\\.|astr\\.|joc\\.|pl\\.|sg\\.|mil\\.|physiol\\.|no\\.|iron\\.|phys\\.|zool\\.|philos\\.|math\\.|[a-zA-Z-]+))"
+alsoRegex = regexp ("^" ++ alsoString)
+
 main :: IO()
 main = do
     args <- getArgs
@@ -139,6 +142,9 @@ parse string = do
     else if string =~ pastFormRegex :: Bool
     then do
         parseWords pastFormString string
+    else if string =~ alsoRegex :: Bool
+    then do
+        parseWord alsoString string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
