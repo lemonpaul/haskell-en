@@ -33,7 +33,7 @@ speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
 pastFormString = "(past and past part\\.( [a-z'-]+,)*( [a-z'-]+)|past part\\.( [a-z'-]+,)*( [a-z'-]+)|past sg\\. [a-z'-]+, pl\\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))"
-pastFormRegex = regexp ("^" ++ pastFormString)
+pastFormRegex = regexp ("^" ++ pastFormString ++ ";? ")
 
 main :: IO()
 main = do
