@@ -44,6 +44,9 @@ alsoRegex = regexp ("^" ++ alsoString)
 oftString = "(oft\\.( [a-z]+\\.?)*)"
 oftRegex = regexp ("^" ++ oftString)
 
+plString = "(pl\\.( of [a-z]+| as sg\\.| and sg\\.| invar\\.|( [A-Za-z'-]+,?)*))"
+plRegex = regexp ("^" ++ plString) 
+
 main :: IO()
 main = do
     args <- getArgs
@@ -112,8 +115,8 @@ parseNumeric array string = do
 parseWord :: String -> String -> IO()
 parseWord word string = do
     let beginFrom = if string =~ regexp ("^" ++ word ++ ";") :: Bool
-                    then (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ";)")) string :: [(String, [String])])
-                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ")")) string :: [(String, [String])])
+                    then (\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";")) string :: [(String, [String])])
+                    else (\[(a, _)] -> a) (scan (regexp ("^" ++ word)) string :: [(String, [String])])
     putStrLn beginFrom
     parse $ drop (length beginFrom + 1) string
 
@@ -145,6 +148,9 @@ parse string = do
     else if string =~ oftRegex :: Bool
     then do
         parseWord oftString string
+    else if string =~ plRegex :: Bool
+    then do
+        parseWord plString string
     else if string =~ pastFormRegex :: Bool
     then do
         parseWords pastFormString string
