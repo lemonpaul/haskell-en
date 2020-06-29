@@ -19,6 +19,9 @@
 Прошедшее время глагола
 ^(past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)*( [a-z'-]+);?)( (past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)))*$
 
+Множественное число
+pl\.( of [a-z]+| as sg\.| and sg\.| invar\.|( [A-Za-z'-]+,?)*);? ?
+
 Аббревиатура usu.
 usu\. (past part\.|pres\. part\.|refl\. or pass\.|refl\.|pass\.|pl\.|mil\.|amer\.|predic\.|imp\.|neg\.|collect\.|joc\.|fig\.|disapprov\.|disdain\.|abbr\.( [a-z]\.)+|([a-z]+,? )*[a-z]+);? ?
 
