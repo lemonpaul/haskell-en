@@ -119,8 +119,8 @@ parseNumeric array string = do
 
 parseWord :: String -> String -> IO()
 parseWord word string = do
-    let beginFrom = if string =~ regexp ("^" ++ word ++ "; ") :: Bool
-                    then (\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ "; ")) string :: [(String, [String])])
+    let beginFrom = if string =~ regexp ("^" ++ word ++ "; ?") :: Bool
+                    then (\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ "; ?")) string :: [(String, [String])])
                     else (\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ "( |$)")) string :: [(String, [String])])
     putStrLn beginFrom
     parse $ drop (length beginFrom) string
