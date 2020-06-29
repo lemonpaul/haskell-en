@@ -27,3 +27,6 @@ also (sandal wood|a pair of crutches|as sg\.|fig\.|tech\.|geol\.|refl\.|leg\.|gr
 
 Аббревиатура oft.
 oft\.( [a-z]+\.?)*;? ?
+
+Аббревиатура abbr.
+abbr\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\.?)?;?( |$)
