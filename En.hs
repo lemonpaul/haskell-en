@@ -24,7 +24,7 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
-langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "lat.", "roman", "rus.", "s.-afr.", "scot.", "span.", "turk."]
+langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", "roman", "rus.", "s.-afr.", "scot.", "span.", "turk."]
 langString = fromArray langArray
 langRegex = regexp ("^" ++ langString)
 
