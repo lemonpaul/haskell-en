@@ -14,7 +14,7 @@
 ^(а\)|б\)|в\)|г\)|д\)|е\)|ж\)|з\)|и\)|к\)|л\)|м\)|н\)|о\)|п\)|р\)|с\)|т\)|у\)|ф\)|х\)|ц\)|ч\)|ш\)|щ\)|э\))$
 
 Язык
-^(anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|roman|rus\.|s\.-afr\.|scot\.|span\.);?( (anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|roman|rus\.|s\.-afr\.|scot\.|span\.);?)*
+^(anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|pol\.|roman|rus\.|s\.-afr\.|sanskr\.|scot\.|span\.);?( (anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|pol\.|roman|rus\.|s\.-afr\.|sanskr\.|scot\.|span\.);?)*
 
 Прошедшее время глагола
 ^(past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)*( [a-z'-]+);?)( (past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)))*$
