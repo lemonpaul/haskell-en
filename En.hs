@@ -74,6 +74,9 @@ fRegex = regexp ("^" ++ fString)
 instString = "((wrong|euphem\\.) (inst\\. )?of [a-z]+)"
 instRegex = regexp ("^" ++ instString)
 
+persString = "(pers\\.( obj\\. (of [a-z]+|invar\\.|[a-z]+))?)"
+persRegex = regexp ("^" ++ persString)
+
 emptyRegex = regexp ("^$")
 
 main :: IO()
@@ -208,6 +211,9 @@ parse string = do
     else if string =~ instRegex :: Bool
     then do
         parseWord instString string
+    else if string =~ persRegex :: Bool
+    then do
+        parseWord persString string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
