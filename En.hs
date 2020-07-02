@@ -24,21 +24,27 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
-langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", "pol.", "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
+langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", "pol.", 
+             "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
 langString = fromArray langArray
 langRegex = regexp ("^" ++ langString)
 
-speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf.", "pref.", "artic."]
+speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf.", 
+                   "pref.", "artic."]
 speechPartString = fromArray speechPartArray
 speechPartRegex = regexp ("^" ++ speechPartString)
 
-pastFormString = "(past and past part\\.( [a-z'-]+,)*( [a-z'-]+)|past part\\.( [a-z'-]+,)*( [a-z'-]+)|past sg\\. [a-z'-]+, pl\\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))?"
+pastFormString = "(past and past part\\.( [a-z'-]+,)*( [a-z'-]+)|past part\\.( [a-z'-]+,)*( [a-z'-]+)| \
+                 \ past sg\\. [a-z'-]+, pl\\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))?"
 pastFormRegex = regexp ("^" ++ pastFormString ++ ";? ")
 
-usuString = "(usu\\. (past part\\.|pres\\. part\\.|refl\\. or pass\\.|refl\\.|pass\\.|pl\\.|mil\\.|amer\\.|predic\\.|imp\\.|neg\\.|collect\\.|joc\\.|fig\\.|disapprov\\.|disdain\\.|abbr\\.( [a-z]\\.)+|([a-z]+,? )*[a-z]+))"
+usuString = "(usu\\. (past part\\.|pres\\. part\\.|refl\\. or pass\\.|refl\\.|pass\\.|pl\\.|mil\\.|amer\\.| \
+            \ predic\\.|imp\\.|neg\\.|collect\\.|joc\\.|fig\\.|disapprov\\.|disdain\\.|abbr\\.( [a-z]\\.)+| \
+            \ ([a-z]+,? )*[a-z]+))"
 usuRegex = regexp ("^" ++ usuString)
 
-alsoString = "(also (sandal wood|a pair of crutches|as sg\\.|fig\\.|tech\\.|geol\\.|refl\\.|leg\\.|gram\\.|astr\\.|joc\\.|pl\\.|sg\\.|mil\\.|physiol\\.|no\\.|iron\\.|phys\\.|zool\\.|philos\\.|math\\.|[a-zA-Z-]+))"
+alsoString = "(also (sandal wood|a pair of crutches|as sg\\.|fig\\.|tech\\.|geol\\.|refl\\.|leg\\.|gram\\.|astr\\.| \
+             \ joc\\.|pl\\.|sg\\.|mil\\.|physiol\\.|no\\.|iron\\.|phys\\.|zool\\.|philos\\.|math\\.|[a-zA-Z-]+))"
 alsoRegex = regexp ("^" ++ alsoString)
 
 oftString = "(oft\\.( [a-z]+\\.?)*)"
@@ -47,8 +53,26 @@ oftRegex = regexp ("^" ++ oftString)
 plString = "(pl\\.( of [a-z]+| as sg\\.| and sg\\.| invar\\.|( [A-Za-z'-]+,?)*))"
 plRegex = regexp ("^" ++ plString)
 
-abbrString = "abbr\\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\\.?)?"
+abbrString = "(abbr\\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\\.?)?)"
 abbrRegex = regexp ("^" ++ abbrString)
+
+dimString = "(dim\\. of( [A-Za-z]+,?)*)"
+dimRegex = regexp ("^" ++ dimString)
+
+superlString = "(superl\\.(( of( [a-z]+,?)+)|( [a-z]+,?)+))"
+superlRegex = regexp ("^" ++ superlString)
+
+compString = "(comp\\.(( of( [a-z]+,?)+)|( [a-z]+,?)+)?)"
+compRegex = regexp ("^" ++ compString)
+
+negString = "(neg\\.( of [a-z]+)?)"
+negRegex = regexp ("^" ++ negString)
+
+fString = "(f\\. \\-[a-z']+)"
+fRegex = regexp ("^" ++ fString)
+
+instString = "((wrong|euphem\\.) (inst\\. )?of [a-z]+)"
+instRegex = regexp ("^" ++ instString)
 
 emptyRegex = regexp ("^$")
 
@@ -127,11 +151,12 @@ parseWord word string = do
 
 parseWords :: String -> String -> IO()
 parseWords word string = do
-    let beginFrom = if string =~ regexp ("^" ++ word ++ ";") :: Bool
-                    then (\[(a, _)] -> a) (scan (regexp ("^((" ++ word ++ "; )*" ++ word ++ ";?)")) string :: [(String, [String])])
-                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ";?)")) string :: [(String, [String])])
+    let beginFrom = if string =~ regexp ("^" ++ word ++ "; ") :: Bool
+                    then (\[(a, _)] -> a) (scan (regexp ("^((" ++ word ++ "; )*" ++ word ++ ";?) ")) 
+                                                string :: [(String, [String])])
+                    else (\[(a, _)] -> a) (scan (regexp ("^(" ++ word ++ ";?) ")) string :: [(String, [String])])
     putStrLn beginFrom
-    parse $ drop (length beginFrom + 1) string
+    parse $ drop (length beginFrom) string
 
 parse :: String -> IO()
 parse string = do
@@ -165,6 +190,24 @@ parse string = do
     else if string =~ abbrRegex :: Bool
     then do
         parseWord abbrString string
+    else if string =~ dimRegex :: Bool
+    then do
+        parseWord dimString string
+    else if string =~ superlRegex :: Bool
+    then do
+        parseWord superlString string
+    else if string =~ compRegex :: Bool
+    then do
+        parseWord compString string
+    else if string =~ negRegex :: Bool
+    then do
+        parseWord negString string
+    else if string =~ fRegex :: Bool
+    then do
+        parseWord fString string
+    else if string =~ instRegex :: Bool
+    then do
+        parseWord instString string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string
