@@ -24,8 +24,8 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
-langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", "pol.", 
-             "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
+langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", 
+             "persian", "pol.", "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
 langString = fromArray langArray
 langRegex = regexp ("^" ++ langString)
 
@@ -76,6 +76,35 @@ instRegex = regexp ("^" ++ instString)
 
 persString = "(pers\\.( obj\\. (of [a-z]+|invar\\.|[a-z]+))?)"
 persRegex = regexp ("^" ++ persString)
+
+asString = "(as (adj\\.|adv\\.|noun|pl\\.|sg\\.))"
+asRegex = regexp ("^" ++ asString)
+
+emphString = "(emph\\.( of [a-z]+)?)"
+emphRegex = regexp ("^" ++ emphString)
+
+objString = "(obj\\. ((of [a-z]+)|[a-z]+))"
+objRegex = regexp ("^" ++ objString)
+
+sgString = "(sg\\.( (and pl\\.|only))?"
+sgRegex = regexp ("^" ++ objString)
+
+otherArray = ["account.", "acoust.", "aeron.", "affect.", "agric.", "aide", "amer.", "analog", "anat.", "anthrop.", 
+              "arch.", "archaeol.", "archit.", "art", "artil.", "astr.", "attr.", "austral.", "bacter.", "bank.", 
+              "bibl.", "bioch.", "biol.", "book.", "bot.", "br.", "card.", "cards", "chem.", "chess", "child.", 
+              "cin.", "coll.", "collect.", "comm.", "comput.", "computer", "conj.", "constr.", "cul.", "demonstr.", 
+              "dial.", "dipl.", "disapprov.", "disdain.", "eccl.", "econ.", "egypt.", "electr.", "esp.","ethnogr.", 
+              "euphem.", "exch.", "fig.", "fin.", "forest.", "geod.", "geogr.", "geol.", "geom.", "gram.", "herald.", 
+              "hist.", "holl.", "hung.", "hunt.", "hydr.", "imp.", "indef.", "inf.", "insur.", "inter.", "iron.", 
+              "jargon", "joc.", "leg.", "ling.", "lit.", "logic", "math.", "mech.", "med.", "metal", "metal.", 
+              "meteor.", "mil.", "min.", "mining", "mot.", "mus.", "myth.", "naut.", "north.", "norweg.", "obs.", 
+              "opt.", "ord.", "paint.", "paleont.", "parl.", "pass.", "pejor.", "pf.", "pharm.", "philos.", "phon.", 
+              "phot.", "phys.", "physiol.", "poet.", "polit.", "port.", "poss.", "prosody", "prov.", "psych.", 
+              "radio", "railways", "rare", "recipr.", "refl.", "rel.", "relat.", "rhet.", "road", "rocket", "rude", 
+              "scand.", "school", "sl.", "spec.", "sport", "spread", "stud.", "styl.", "surg.", "tech.", "telegr.", 
+              "teleph.", "text.", "theatr.", "topogr.", "tv", "typ.", "univ.", "vers.", "vet.", "vulg.", "zool."]
+otherString = fromArray otherArray
+otherRegex = regexp ("^" ++ otherString)
 
 emptyRegex = regexp ("^$")
 
@@ -214,6 +243,21 @@ parse string = do
     else if string =~ persRegex :: Bool
     then do
         parseWord persString string
+    else if string =~ asRegex :: Bool
+    then do
+        parseWord asString string
+    else if string =~ emphRegex :: Bool
+    then do
+        parseWord emphString string
+    else if string =~ objRegex :: Bool
+    then do
+        parseWord objString string
+    else if string =~ sgRegex :: Bool
+    then do
+        parseWord sgString string
+    else if string =~ otherRegex :: Bool
+    then do
+        parseWord otherString string
     else if string =~ arabicBracketRegex :: Bool
     then do
         parseNumeric arabicBracketArray string

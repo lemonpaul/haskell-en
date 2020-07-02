@@ -51,3 +51,18 @@ f\. \-[a-z']+
 
 Аббревиатура inst.
 (wrong|euphem\.) (inst\. )?of [a-z]+
+
+Аббревиатура pers.
+pers\.( obj\. (of [a-z]+|invar\.|[a-z]+))?
+
+Аббревиатура с as
+as (adj\.|adv\.|noun|pl\.|sg\.)
+
+Аббревиатура emph.
+emph\.( of [a-z]+)?
+
+Аббревиатура obj.
+obj\. ((of [a-z]+)|[a-z]+)
+
+Аббревиатура sg.
+sg\. (and pl\.|only)
