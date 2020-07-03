@@ -176,6 +176,13 @@ parseNumeric array string = do
             putStrLn begin
             parse $ drop (length begin + 1) string
 
+parseAbbr :: String -> IO()
+parseAbbr string = do
+    let regex = regexp ("^(.*?) " ++ speechPartString)
+    let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+    putStrLn begin
+    parse $ drop (length begin + 1) string
+
 parseWords :: String -> String -> IO()
 parseWords word string = do
     let beginFrom = ((\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";?( " ++ word ++ ";?)*( |$)")) 
@@ -199,7 +206,10 @@ parse string = do
         parseNumeric arabicBracketArray string
     else if string =~ cyrillicBracketRegex :: Bool
     then do
-        parseNumeric cyrillicBracketArray string        
+        parseNumeric cyrillicBracketArray string
+    else if string =~ regexp (" " ++ speechPartString ++ " ")
+    then do
+        parseAbbr string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
