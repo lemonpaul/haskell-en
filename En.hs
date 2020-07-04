@@ -27,63 +27,44 @@ cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", 
              "persian", "pol.", "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
 langString = fromArray langArray
-langRegex = regexp ("^" ++ langString)
 
 speechPartArray = ["noun", "pron.", "v.", "adj.", "adv.", "prep.", "cj.", "interj.", "predic.", "num.", "suf.", 
                    "pref.", "artic."]
 speechPartString = fromArray speechPartArray
-speechPartRegex = regexp ("^" ++ speechPartString)
 
 pastFormString = "(past and past part\\.( [a-z'-]+,)*( [a-z'-]+)|past part\\.( [a-z'-]+,)*( [a-z'-]+)|past sg\\. [a-z'-]+, pl\\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))"
-pastFormRegex = regexp ("^" ++ pastFormString ++ ";? ")
 
 usuString = "(usu\\. (past part\\.|pres\\. part\\.|refl\\. or pass\\.|refl\\.|pass\\.|pl\\.|mil\\.|amer\\.|predic\\.|imp\\.|neg\\.|collect\\.|joc\\.|fig\\.|disapprov\\.|disdain\\.|abbr\\.( [a-z]\\.)+|([a-z]+,? )*[a-z]+))"
-usuRegex = regexp ("^" ++ usuString)
 
 alsoString = "(also (sandal wood|a pair of crutches|as sg\\.|fig\\.|tech\\.|geol\\.|refl\\.|leg\\.|gram\\.|astr\\.|joc\\.|pl\\.|sg\\.|mil\\.|physiol\\.|no\\.|iron\\.|phys\\.|zool\\.|philos\\.|math\\.|[a-zA-Z-]+))"
-alsoRegex = regexp ("^" ++ alsoString)
 
 oftString = "(oft\\.( [a-z]+\\.?)*)"
-oftRegex = regexp ("^" ++ oftString)
 
 plString = "(pl\\.( of [a-z]+| as sg\\.| and sg\\.| invar\\.|( [A-Za-z'-]+,?)*))"
-plRegex = regexp ("^" ++ plString)
 
 abbrString = "(abbr\\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\\.?)?)"
-abbrRegex = regexp ("^" ++ abbrString)
 
 dimString = "(dim\\. of( [A-Za-z]+,?)*)"
-dimRegex = regexp ("^" ++ dimString)
 
 superlString = "(superl\\.(( of( [a-z]+,?)+)|( [a-z]+,?)+))"
-superlRegex = regexp ("^" ++ superlString)
 
 compString = "(comp\\.(( of( [a-z]+,?)+)|( [a-z]+,?)+)?)"
-compRegex = regexp ("^" ++ compString)
 
 negString = "(neg\\.( of [a-z]+)?)"
-negRegex = regexp ("^" ++ negString)
 
 fString = "(f\\. \\-[a-z']+)"
-fRegex = regexp ("^" ++ fString)
 
 instString = "((wrong|euphem\\.) (inst\\. )?of [a-z]+)"
-instRegex = regexp ("^" ++ instString)
 
 persString = "(pers\\.( obj\\. (of [a-z]+|invar\\.|[a-z]+))?)"
-persRegex = regexp ("^" ++ persString)
 
 asString = "(as (adj\\.|adv\\.|noun|pl\\.|sg\\.))"
-asRegex = regexp ("^" ++ asString)
 
 emphString = "(emph\\.( of [a-z]+)?)"
-emphRegex = regexp ("^" ++ emphString)
 
 objString = "(obj\\. ((of [a-z]+)|[a-z]+))"
-objRegex = regexp ("^" ++ objString)
 
 sgString = "(sg\\.( (and pl\\.|only))?)"
-sgRegex = regexp ("^" ++ sgString)
 
 otherArray = ["account.", "acoust.", "aeron.", "affect.", "agric.", "amer.", "anat.", "anthrop.", 
               "arch.", "archaeol.", "archit.", "art", "artil.", "astr.", "attr.", "austral.", "bacter.", "bank.", 
@@ -100,7 +81,6 @@ otherArray = ["account.", "acoust.", "aeron.", "affect.", "agric.", "amer.", "an
               "scand.", "school", "sl.", "spec.", "sport", "spread", "stud.", "styl.", "surg.", "tech.", "telegr.", 
               "teleph.", "text.", "theatr.", "topogr.", "tv", "typ.", "univ.", "vers.", "vet.", "vulg.", "zool."]
 otherString = fromArray otherArray
-otherRegex = regexp ("^" ++ otherString)
 
 wordString = "(" ++ langString ++ "|" ++ speechPartString ++ "|" ++ pastFormString ++ "|" ++ usuString ++ "|" ++ 
              alsoString ++ "|" ++ oftString ++ "|" ++ plString ++ "|" ++ abbrString ++ "|" ++ dimString ++ "|" ++ 
@@ -108,6 +88,9 @@ wordString = "(" ++ langString ++ "|" ++ speechPartString ++ "|" ++ pastFormStri
              persString ++ "|" ++ asString ++ "|" ++ emphString ++ "|" ++ objString ++ "|" ++ sgString ++ "|" ++
              otherString ++ ")"
 wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
+
+bracketsString = "\\(.*?\\)"
+bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
 
 emptyRegex = regexp ("^$")
 
@@ -183,12 +166,18 @@ parseAbbr string = do
     putStrLn begin
     parse $ drop (length begin + 1) string
 
+parseBrackets :: String -> IO()
+parseBrackets string = do
+    let begin = ((\[(a, _)] -> a) (scan bracketsRegex string :: [(String, [String])]))
+    putStrLn begin
+    parse $ drop (length begin) string
+
 parseWords :: String -> String -> IO()
 parseWords word string = do
-    let beginFrom = ((\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";?( " ++ word ++ ";?)*( |$)")) 
+    let begin = ((\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";?( " ++ word ++ ";?)*( |$)")) 
                                             string :: [(String, [String])]))
-    putStrLn beginFrom
-    parse $ drop (length beginFrom) string
+    putStrLn begin
+    parse $ drop (length begin) string
 
 parse :: String -> IO()
 parse string = do
@@ -210,6 +199,9 @@ parse string = do
     else if string =~ regexp (" " ++ speechPartString ++ " ")
     then do
         parseAbbr string
+    else if string =~ bracketsRegex
+    then do
+        parseBrackets string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
