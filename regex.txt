@@ -1,68 +1,20 @@
+Слово или фраза
+^#.*$
+
 Список из римских цифр
 ^(I|II|III|IV|V|VI|VII|VIII|IX)$
 
-Списоб из арабских цифр с точкой
+Список из арабских цифр с точкой
 ^(1\.|2\.|3\.|4\.|5\.|6\.)$
 
-Часть речи
-^(noun|pron\.|v\.|adj\.|adv\.|prep\.|cj\.|interj\.|predic\.|num\.|suf\.|pref\.|artic\.);?( (noun|pron\.|v\.|adj\.|adv\.|prep\.|cj\.|interj\.|predic\.|num\.|suf\.|pref\.|artic\.);?)*
-
-Список из арабских цифр с точкой
+Список из арабских цифр со скобкой
 ^(1\)|2\)|3\)|4\)|5\)|6\)|7\)|8\)|9\)|10\)|11\)|12\)|13\)|14\)|15\)|16\)|17\)|18\)|19\)|20\)|21\)|22\)|23\)|24\)|25\)|26\)|27\)|28\)|29\)|30\)|31\)|32\)|33\)|34\))$
 
-Сприсок из букв кириллицы
+Список из букв кириллицы со скобкой
 ^(а\)|б\)|в\)|г\)|д\)|е\)|ж\)|з\)|и\)|к\)|л\)|м\)|н\)|о\)|п\)|р\)|с\)|т\)|у\)|ф\)|х\)|ц\)|ч\)|ш\)|щ\)|э\))$
 
-Язык
-^(anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|pol\.|roman|rus\.|s\.-afr\.|sanskr\.|scot\.|span\.);?( (anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|lat\.|pol\.|roman|rus\.|s\.-afr\.|sanskr\.|scot\.|span\.);?)*
+Сокращения и предметные области
+^((anc\.-gr\.|arab\.|chin\.|fr\.|germ\.|greek|indian|irish|it\.|jap\.|lat\.|persian|pol\.|roman|rus\.|s\.-afr\.|sanskr\.|scot\.|span\.|turk\.)|(noun|pron\.|v\.|adj\.|adv\.|prep\.|cj\.|interj\.|predic\.|num\.|suf\.|pref\.|artic\.)|(past and past part\.( [a-z'-]+,)*( [a-z'-]+)|past part\.( [a-z'-]+,)*( [a-z'-]+)|past sg\. [a-z'-]+, pl\. [a-z'-]+|past( [a-z'-]+,)*( [a-z'-]+))|(usu\. (past part\.|pres\. part\.|refl\. or pass\.|refl\.|pass\.|pl\.|mil\.|amer\.|predic\.|imp\.|neg\.|collect\.|joc\.|fig\.|disapprov\.|disdain\.|abbr\.( [a-z]\.)+|([a-z]+,? )*[a-z]+))|(also (sandal wood|a pair of crutches|as sg\.|fig\.|tech\.|geol\.|refl\.|leg\.|gram\.|astr\.|joc\.|pl\.|sg\.|mil\.|physiol\.|no\.|iron\.|phys\.|zool\.|philos\.|math\.|[a-zA-Z-]+))|(oft\.( [a-z]+\.?)*)|(pl\.( of [a-z]+| as sg\.| and sg\.| invar\.|( [A-Za-z'-]+,?)*))|(abbr\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\.?)?)|(dim\. of( [A-Za-z]+,?)*)|(superl\.(( of( [a-z]+,?)+)|( [a-z]+,?)+))|(comp\.(( of( [a-z]+,?)+)|( [a-z]+,?)+)?)|(neg\.( of [a-z]+)?)|(f\. \-[a-z']+)|((wrong|euphem\.) (inst\. )?of [a-z]+)|(pers\.( obj\. (of [a-z]+|invar\.|[a-z]+))?)|(as (adj\.|adv\.|noun|pl\.|sg\.))|(emph\.( of [a-z]+)?)|(obj\. ((of [a-z]+)|[a-z]+))|(sg\.( (and pl\.|only))?)|(account\.|acoust\.|aeron\.|affect\.|agric\.|amer\.|anat\.|anthrop\.|arch\.|archaeol\.|archit\.|art|artil\.|astr\.|attr\.|austral\.|bacter\.|bank\.|bibl\.|bioch\.|biol\.|book\.|bot\.|br\.|card\.|cards|chem\.|chess|child\.|cin\.|coll\.|collect\.|comm\.|comput\.|computer|conj\.|constr\.|cul\.|demonstr\.|dial\.|dipl\.|disapprov\.|disdain\.|eccl\.|econ\.|egypt\.|electr\.|esp\.|ethnogr\.|euphem\.|exch\.|fig\.|fin\.|forest\.|geod\.|geogr\.|geol\.|geom\.|gram\.|herald\.|hist\.|holl\.|hung\.|hunt\.|hydr\.|imp\.|indef\.|inf\.|insur\.|inter\.|iron\.|jargon|joc\.|leg\.|ling\.|lit\.|logic|math\.|mech\.|med\.|metal|metal\.|meteor\.|mil\.|min\.|mining|mot\.|mus\.|myth\.|naut\.|north\.|norweg\.|obs\.|opt\.|ord\.|paint\.|paleont\.|parl\.|pass\.|pejor\.|pf\.|pharm\.|philos\.|phon\.|phot\.|phys\.|physiol\.|poet\.|polit\.|port\.|poss\.|prosody|prov\.|psych\.|radio|railways|rare|recipr\.|refl\.|rel\.|relat\.|rhet\.|road|rocket|rude|scand\.|school|sl\.|spec\.|sport|spread|stud\.|styl\.|surg\.|tech\.|telegr\.|teleph\.|text\.|theatr\.|topogr\.|tv|typ\.|univ\.|vers\.|vet\.|vulg\.|zool\.)).*$
 
-Прошедшее время глагола
-^(past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)*( [a-z'-]+);?)( (past and past part\.( [a-z'-]+,)*( [a-z'-]+);?|past part\.( [a-z'-]+,)*( [a-z'-]+);?|past sg\. [a-z'-]+, pl\. [a-z'-]+;?|past( [a-z'-]+,)))*$
-
-Множественное число
-pl\.( of [a-z]+| as sg\.| and sg\.| invar\.|( [A-Za-z'-]+,?)*);? ?
-
-Аббревиатура usu.
-usu\. (past part\.|pres\. part\.|refl\. or pass\.|refl\.|pass\.|pl\.|mil\.|amer\.|predic\.|imp\.|neg\.|collect\.|joc\.|fig\.|disapprov\.|disdain\.|abbr\.( [a-z]\.)+|([a-z]+,? )*[a-z]+);? ?
-
-Аббревиатура also
-also (sandal wood|a pair of crutches|as sg\.|fig\.|tech\.|geol\.|refl\.|leg\.|gram\.|astr\.|joc\.|pl\.|sg\.|mil\.|physiol\.|no\.|iron\.|phys\.|zool\.|philos\.|math\.|[a-zA-Z-]+);? ?
-
-Аббревиатура oft.
-oft\.( [a-z]+\.?)*;? ?
-
-Аббревиатура abbr.
-abbr\.(( of( [A-Za-z+-]+,?)+)|( [0-9A-Za-z]+)\.?)?;?( |$)
-
-Аббревиатура dim.
-dim\. of( [A-Za-z]+,?)*
-
-Аббревиатура superl.
-superl\.(( of( [a-z]+,?)+)|( [a-z]+,?)+)
-
-Аббревиатура comp.
-comp\.(( of( [a-z]+,?)+)|( [a-z]+,?)+)?
-
-Аббревиатура neg.
-neg\.(of [a-z]+)?
-
-Аббревиатура f.
-f\. \-[a-z']+
-
-Аббревиатура inst.
-(wrong|euphem\.) (inst\. )?of [a-z]+
-
-Аббревиатура pers.
-pers\.( obj\. (of [a-z]+|invar\.|[a-z]+))?
-
-Аббревиатура с as
-as (adj\.|adv\.|noun|pl\.|sg\.)
-
-Аббревиатура emph.
-emph\.( of [a-z]+)?
-
-Аббревиатура obj.
-obj\. ((of [a-z]+)|[a-z]+)
-
-Аббревиатура sg.
-sg\. (and pl\.|only)
+Скобки
+^\(.*?\) $
