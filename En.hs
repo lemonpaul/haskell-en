@@ -216,7 +216,7 @@ parseLinks (n:ns) (l:ls) = do
     then do
         parse n
         parsePart (fromJust index) (head l) (tail l)
-    else putStrLn (l !! 0)
+    else putStrLn ("= "++ (l !! 0))
     parseLinks ns ls
     hClose handleList
 
