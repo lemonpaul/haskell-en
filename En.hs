@@ -92,6 +92,10 @@ wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
 bracketsString = "\\(.*?\\)"
 bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
 
+linkString = "(?: (?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})+(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
+             optionalFromArray arabicDotArray ++ ")?(?: " ++ optionalFromArray arabicBracketArray ++ ")?(?: " ++
+             optionalFromArray cyrillicBracketArray ++ ")?"
+
 emptyRegex = regexp ("^$")
 
 main :: IO()
@@ -103,20 +107,24 @@ main = do
                               then args !! 0
                               else ""
     if definition == ""
+    then do
+        progName <- getProgName
+        putStrLn $ "Usage: " ++ progName ++ " <definition>"
+    else do
+        handleList <- openFile "list.dic" ReadMode
+        contentsList <- hGetContents handleList
+        let index = indexOf definition (lines contentsList)
+        if isJust index
         then do
-            progName <- getProgName
-            putStrLn $ "Usage: " ++ progName ++ " <definition>"
+            handleDict <- openFile "en.dic" ReadMode
+            contentsDict <- hGetContents handleDict
+            let string = lines contentsDict !! fromJust index
+            putStrLn definition
+            parse $ drop (length definition + 1) string
+            hClose handleDict
         else do
-            handle <- openFile "en.dic" ReadMode
-            contents <- hGetContents handle
-            let translationLine = translateEn definition (lines contents)
-            if translationLine /= ""
-                then do
-                    let translation = drop (length definition + 1) translationLine
-                    parse translation
-                else
-                    putStrLn "Translation is not found."
-            hClose handle
+            putStrLn "Translation not found"
+        hClose handleList
 
 regexp :: String -> Regex
 regexp string = rights [compileM (fromString string) []] !! 0
@@ -127,17 +135,11 @@ escape string = unpack $ replace "." "\\." $ replace ")" "\\)" $ pack string
 fromArray :: [String] -> String
 fromArray array = "(" ++ escape (intercalate "|" array) ++ ")"
 
-translateEn :: String -> [String] -> String
-translateEn definition [] = ""
-translateEn definition (l:ls) = if isPrefixOf definition l
-                                        then l
-                                        else translateEn definition ls
+optionalFromArray :: [String] -> String
+optionalFromArray array = "(?:" ++ escape (intercalate "|" array) ++ ")"
 
-translateRu :: String -> [String] -> String
-translateRu definition [] = ""
-translateRu definition (l:ls) = if l =~ (regexp definition)
-                                        then l
-                                        else translateRu definition ls
+indexOf :: String -> [String] -> Maybe Int
+indexOf string list = elemIndex string list
 
 parseNumeric :: [String] -> String -> IO()
 parseNumeric array string = do
@@ -159,12 +161,12 @@ parseNumeric array string = do
             putStrLn begin
             parse $ drop (length begin + 1) string
 
-parseAbbr :: String -> IO()
-parseAbbr string = do
-    let regex = regexp ("^(.*?) " ++ speechPartString)
-    let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+parseWords :: String -> String -> IO()
+parseWords word string = do
+    let begin = ((\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";?( " ++ word ++ ";?)*( |$)")) 
+                                        string :: [(String, [String])]))
     putStrLn begin
-    parse $ drop (length begin + 1) string
+    parse $ drop (length begin) string
 
 parseBrackets :: String -> IO()
 parseBrackets string = do
@@ -172,12 +174,12 @@ parseBrackets string = do
     putStrLn begin
     parse $ drop (length begin) string
 
-parseWords :: String -> String -> IO()
-parseWords word string = do
-    let begin = ((\[(a, _)] -> a) (scan (regexp ("^" ++ word ++ ";?( " ++ word ++ ";?)*( |$)")) 
-                                            string :: [(String, [String])]))
+parseLink :: String -> IO()
+parseLink string = do
+    let regex = regexp ("(^=" ++ linkString ++ "(?:," ++ linkString ++ ")*-?;?)(?: |$)(.+)?$")
+    let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
     putStrLn begin
-    parse $ drop (length begin) string
+    parse $ drop (length begin + 1) string
 
 parse :: String -> IO()
 parse string = do
@@ -196,12 +198,12 @@ parse string = do
     else if string =~ cyrillicBracketRegex :: Bool
     then do
         parseNumeric cyrillicBracketArray string
-    else if string =~ regexp (" " ++ speechPartString ++ " ")
-    then do
-        parseAbbr string
     else if string =~ bracketsRegex
     then do
         parseBrackets string
+    else if string =~ regexp ("^=" ++ linkString)
+    then do
+        parseLink string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
