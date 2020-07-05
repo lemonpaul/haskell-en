@@ -24,6 +24,9 @@ arabicBracketRegex = regexp ("^" ++ fromArray arabicBracketArray)
 cyrillicBracketArray = map (++ ")") $ group "абвгдежзиклмнопрстуфхцчшщэ"
 cyrillicBracketRegex = regexp ("^" ++ fromArray cyrillicBracketArray)
 
+listString = "(?: " ++ fromArray romanArray ++ ")?(?: " ++ fromArray arabicDotArray ++ ")?(?: " ++ 
+             fromArray arabicBracketArray ++ ")?(?: " ++ fromArray cyrillicBracketArray ++ ")?"
+
 langArray = ["anc.-gr.", "arab.", "chin.", "fr.", "germ.", "greek", "indian", "irish", "it.", "jap.", "lat.", 
              "persian", "pol.", "roman", "rus.", "s.-afr.", "sanskr.", "scot.", "span.", "turk."]
 langString = fromArray langArray
@@ -92,7 +95,7 @@ wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
 bracketsString = "\\(.*?\\)"
 bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
 
-linkString = "(?: (?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})+(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
+linkString = "(?:(?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3}(?: [a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})*)(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
              optionalFromArray arabicDotArray ++ ")?(?: " ++ optionalFromArray arabicBracketArray ++ ")?(?: " ++
              optionalFromArray cyrillicBracketArray ++ ")?"
 
@@ -174,12 +177,85 @@ parseBrackets string = do
     putStrLn begin
     parse $ drop (length begin) string
 
+numerateArray :: [[String]] -> [String]
+numerateArray links = do
+    let index = (minimum $ map length links) - 1
+    if index > 0 && length links > 1
+    then do
+        let element = links !! 0 !! index
+        if elem element romanArray
+        then romanArray
+        else if elem element arabicDotArray
+        then arabicDotArray
+        else if elem element arabicBracketArray
+        then arabicBracketArray
+        else cyrillicBracketArray
+    else if length links == 1
+    then repeat ""
+    else romanArray
+
 parseLink :: String -> IO()
 parseLink string = do
-    let regex = regexp ("(^=" ++ linkString ++ "(?:," ++ linkString ++ ")*-?;?)(?: |$)(.+)?$")
+    let regex = regexp ("(^= " ++ linkString ++ "(?:, " ++ linkString ++ ")*-?;?)(?: |$)(.+)?$")
     let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-    putStrLn begin
+    let linkRegex = regexp ("^= (" ++ linkString ++ ")(?:, (" ++ linkString ++ "))?(?:, (" ++ 
+                            linkString ++ "))?;?")
+    let links = (\[(_, a)] -> a) (scan linkRegex begin)
+    let splitedLinks = splitLinks links
+    let numerator = numerateArray splitedLinks
+    parseLinks numerator splitedLinks
     parse $ drop (length begin + 1) string
+
+parseLinks :: [String] -> [[String]] -> IO()
+parseLinks _ [] = return ()
+parseLinks (n:ns) (l:ls) = do
+    handleList <- openFile "list.dic" ReadMode
+    contentsList <- hGetContents handleList
+    let index = indexOf (l !! 0) (lines contentsList)
+    if isJust index
+    then do
+        parse n
+        parsePart (fromJust index) (head l) (tail l)
+    else putStrLn (l !! 0)
+    parseLinks ns ls
+    hClose handleList
+
+parsePart :: Int -> String -> [String] -> IO()
+parsePart index definition part = do
+    handleDict <- openFile "en.dic" ReadMode
+    contentsDict <- hGetContents handleDict
+    let string = lines contentsDict !! index
+    let substring = drop (length definition + 1) string
+    extractPart part substring
+    hClose handleDict
+
+extractPart :: [String] -> String -> IO()
+extractPart [] string = parse string
+extractPart (p:ps) string = do
+    let array = if elem p romanArray
+                then romanArray
+                else if elem p arabicDotArray
+                then arabicDotArray
+                else if elem p arabicBracketArray
+                then arabicBracketArray
+                else cyrillicBracketArray
+    let regexArray = map escape array
+    parse $ (\[(_, a)] -> a !! 0) (scan (regexp ("^(.*?)" ++ escape (array !! 0) ++ ".*$")) string)
+    let index = fromMaybe (-1) $ findIndex (\a -> (p == a)) array
+    let part = if (index == length array - 1) || (index == -1)
+               then do
+                   drop (length p + 1) string
+               else do
+                   let regex = regexp ("^.*?" ++ (regexArray !! index) ++ " (.*?)(?: " ++ 
+                                       (regexArray !! (index + 1)) ++ " .*)?$")
+                   (\[(_, a)] -> a !! 0) (scan regex string)
+    extractPart ps part
+
+splitLinks :: [String] -> [[String]]
+splitLinks [] = []
+splitLinks (l:ls) = do
+    let link = filter (\a -> a /= "") ((\[(_, a)] -> a) (scan (regexp ("^(.*?)" ++ listString ++ "$")) l))
+    [link] ++ splitLinks ls
 
 parse :: String -> IO()
 parse string = do
@@ -201,7 +277,7 @@ parse string = do
     else if string =~ bracketsRegex
     then do
         parseBrackets string
-    else if string =~ regexp ("^=" ++ linkString)
+    else if string =~ regexp ("^= " ++ linkString)
     then do
         parseLink string
     else if not (string =~ emptyRegex)
