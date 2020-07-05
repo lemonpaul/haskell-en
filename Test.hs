@@ -1,4 +1,4 @@
-import En (translateEn, parse)
+import En (parse)
 import System.IO
 
 translate :: [String] -> [String] -> [Int] -> IO()
