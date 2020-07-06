@@ -13,7 +13,7 @@ import Data.Either (rights)
 import Data.Text (replace, pack, unpack)
 
 romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
-romanRegex = regexp ("^" ++ fromArray romanArray)
+romanRegex = regexp ("^" ++ fromArray romanArray ++ " ")
 
 arabicDotArray = map (++ ".") $ map show $ take 6 $ iterate (+1) 1
 arabicDotRegex = regexp ("^" ++ fromArray arabicDotArray)
@@ -257,6 +257,13 @@ splitLinks (l:ls) = do
     let link = filter (\a -> a /= "") ((\[(_, a)] -> a) (scan (regexp ("^(.*?)" ++ listString ++ "$")) l))
     [link] ++ splitLinks ls
 
+parseAbbr :: String -> IO()
+parseAbbr string = do
+    let regex = regexp ("^(.*?) " ++ speechPartString)
+    let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
+    putStrLn begin
+    parse $ drop (length begin + 1) string
+
 parse :: String -> IO()
 parse string = do
     if string =~ romanRegex :: Bool
@@ -280,6 +287,9 @@ parse string = do
     else if string =~ regexp ("^= " ++ linkString)
     then do
         parseLink string
+    else if string =~ regexp speechPartString
+    then do
+        parseAbbr string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
