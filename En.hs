@@ -258,7 +258,7 @@ splitLinks (l:ls) = do
 
 parseAbbr :: String -> IO()
 parseAbbr string = do
-    let regex = regexp ("^(.*?) " ++ speechPartString)
+    let regex = regexp ("^(.*?)( " ++ optionalFromArray arabicDotArray ++ ")? " ++ speechPartString)
     let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
     putStrLn begin
     parse $ drop (length begin + 1) string
