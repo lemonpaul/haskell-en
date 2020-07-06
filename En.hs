@@ -198,8 +198,7 @@ parseLink :: String -> IO()
 parseLink string = do
     let regex = regexp ("(^= " ++ linkString ++ "(?:, " ++ linkString ++ ")*-?;?)(?: |$)(.+)?$")
     let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-    let linkRegex = regexp ("^= (" ++ linkString ++ ")(?:, (" ++ linkString ++ "))?(?:, (" ++ 
-                            linkString ++ "))?;?")
+    let linkRegex = regexp ("^= (" ++ linkString ++ ")(?:, (" ++ linkString ++ "))?(?:, (" ++ linkString ++ "))?;?")
     let links = (\[(_, a)] -> a) (scan linkRegex begin)
     let splitedLinks = splitLinks links
     let numerator = numerateArray splitedLinks
@@ -287,7 +286,7 @@ parse string = do
     else if string =~ regexp ("^= " ++ linkString)
     then do
         parseLink string
-    else if string =~ regexp speechPartString
+    else if string =~ regexp (" " ++ speechPartString ++ " ")
     then do
         parseAbbr string
     else if not (string =~ emptyRegex)
