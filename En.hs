@@ -286,7 +286,7 @@ parse string = do
     else if string =~ regexp ("^= " ++ linkString)
     then do
         parseLink string
-    else if string =~ regexp (" " ++ speechPartString ++ " ")
+    else if string =~ regexp (" " ++ speechPartString ++ ";? ")
     then do
         parseAbbr string
     else if not (string =~ emptyRegex)
