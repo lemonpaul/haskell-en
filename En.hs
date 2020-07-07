@@ -104,6 +104,9 @@ hyphenRegex = regexp ("^- ")
 formString = "(see|past|Syn:|2nd|3rd sg\\.|f\\. of)"
 formRegex = regexp ("^" ++ formString ++ " .+$")
 
+russianString = "['\"\\-]?\\(?(?:\\d{1,4} |1/\\d{1,2} |\\d{1,3}\\-)?(?:[DSVXY]-)?[ёа-яА-Я]"
+russianRegex = regexp ("^" ++ russianString ++ ".*$")
+
 englishString = "([a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$]+)*[?!]?,?)*;?(?:$| ))"
 englishRegex = regexp ("^" ++ englishString)
 
@@ -307,6 +310,9 @@ parse string = do
     then do
         parse $ drop 2 string
     else if string =~ formRegex
+    then do
+        putStrLn string
+    else if string =~ russianRegex
     then do
         putStrLn string
     else if string =~ englishRegex
