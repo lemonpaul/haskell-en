@@ -92,12 +92,14 @@ wordString = "(" ++ langString ++ "|" ++ speechPartString ++ "|" ++ pastFormStri
              otherString ++ ")"
 wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
 
-bracketsString = "\\([^\\(\\)]*?\\)"
+bracketsString = "(\\([^\\(\\)]*?\\)|\\[[^\\[\\]]*?\\])"
 bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
 
 linkString = "(?:(?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3}(?: [a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})*)(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
              optionalFromArray arabicDotArray ++ ")?(?: " ++ optionalFromArray arabicBracketArray ++ ")?(?: " ++
              optionalFromArray cyrillicBracketArray ++ ")?"
+
+hyphenRegex = regexp ("^- ")
 
 emptyRegex = regexp ("^$")
 
@@ -289,6 +291,9 @@ parse string = do
     else if string =~ regexp (" " ++ speechPartString ++ ";? ")
     then do
         parseAbbr string
+    else if string =~ hyphenRegex
+    then do
+        parse $ drop 2 string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
