@@ -104,7 +104,7 @@ hyphenRegex = regexp ("^- ")
 formString = "(see|past|Syn:|2nd|3rd sg\\.|f\\. of)"
 formRegex = regexp ("^" ++ formString ++ " .+$")
 
-englishString = "([a-zA-Z\\d()'.=/]+(?:-[a-zA-Z\\d()'.=/]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/]+(?:-[a-zA-Z\\d()'.=/]+)*[?!]?,?)*;?(?:$| ))"
+englishString = "([a-zA-Z\\d()'.=/&]+(?:-[a-zA-Z\\d()'.=/&]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/&]+(?:-[a-zA-Z\\d()'.=/&]+)*[?!]?,?)*;?(?:$| ))"
 englishRegex = regexp ("^" ++ englishString)
 
 emptyRegex = regexp ("^$")
