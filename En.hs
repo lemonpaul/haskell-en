@@ -107,8 +107,8 @@ formRegex = regexp ("^" ++ formString ++ " .+$")
 russianString = "['\"\\-]?\\(?(?:\\d{1,4} |1/\\d{1,2} |\\d{1,3}\\-)?(?:[DSVXY]-)?[ёа-яА-Я]"
 russianRegex = regexp ("^" ++ russianString ++ ".*$")
 
-englishString = "([a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$?!]+)*,?(?: [a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$?!]+)*,?)*;?(?:$| ))"
-englishRegex = regexp ("^" ++ englishString)
+englishString = "([a-zA-Z\\d()'.=/&!?]+(?:-[a-zA-Z\\d()'.=/&!?]+)*,?(?: [a-zA-Z\\d()'.=/&!?]+(?:-[a-zA-Z\\d()'.=/&!?]+)*,?)*;?(?:$| ))"
+englishRegex = regexp ("^" ++ englishString ++ ".*$")
 
 emptyRegex = regexp ("^$")
 
