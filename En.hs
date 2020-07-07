@@ -92,7 +92,7 @@ wordString = "(" ++ langString ++ "|" ++ speechPartString ++ "|" ++ pastFormStri
              otherString ++ ")"
 wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
 
-bracketsString = "\\(.*?\\)"
+bracketsString = "\\([^\\(\\)]*?\\)"
 bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
 
 linkString = "(?:(?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3}(?: [a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})*)(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
