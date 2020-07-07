@@ -104,7 +104,7 @@ hyphenRegex = regexp ("^- ")
 formString = "(see|past|Syn:|2nd|3rd sg\\.|f\\. of)"
 formRegex = regexp ("^" ++ formString ++ " .+$")
 
-englishString = "([a-zA-Z\\d()'.=/&]+(?:-[a-zA-Z\\d()'.=/&]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/&]+(?:-[a-zA-Z\\d()'.=/&]+)*[?!]?,?)*;?(?:$| ))"
+englishString = "([a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/&$]+(?:-[a-zA-Z\\d()'.=/&$]+)*[?!]?,?)*;?(?:$| ))"
 englishRegex = regexp ("^" ++ englishString)
 
 emptyRegex = regexp ("^$")
@@ -162,7 +162,7 @@ parseNumeric array string = do
         putStrLn begin
         parse $ drop (length begin + 1) string
     else do
-        let regex = regexp ("^" ++ (regexArray !! index) ++ " .*?(" ++ (regexArray !! (index + 1)) ++ " .*)$")
+        let regex = regexp ("^" ++ (regexArray !! index) ++ " .*? (" ++ (regexArray !! (index + 1)) ++ " .*)$")
         if string =~ regex :: Bool
         then do
             let part = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
