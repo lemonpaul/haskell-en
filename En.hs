@@ -101,6 +101,12 @@ linkString = "(?:(?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3}(?: [a-zA-Z'./]+(?:-[
 
 hyphenRegex = regexp ("^- ")
 
+formString = "(see|past|Syn:|2nd|3rd sg\\.|f\\. of)"
+formRegex = regexp ("^" ++ formString ++ " .+$")
+
+englishString = "([a-zA-Z\\d()'.=/]+(?:-[a-zA-Z\\d()'.=/]+)*[?!]?,?(?: [a-zA-Z\\d()'.=/]+(?:-[a-zA-Z\\d()'.=/]+)*[?!]?,?)*;?(?:$| ))"
+englishRegex = regexp ("^" ++ englishString)
+
 emptyRegex = regexp ("^$")
 
 main :: IO()
@@ -262,8 +268,14 @@ parseAbbr :: String -> IO()
 parseAbbr string = do
     let regex = regexp ("^(.*?)( " ++ optionalFromArray arabicDotArray ++ ")? " ++ speechPartString)
     let begin = (\[(_, a)] -> a !! 0) (scan regex string :: [(String, [String])])
-    putStrLn begin
+    parse begin
     parse $ drop (length begin + 1) string
+
+parseEnglish :: String -> IO()
+parseEnglish string = do
+    let begin = (\[(_, a)] -> a !! 0) (scan englishRegex string :: [(String, [String])])
+    putStrLn begin
+    parse $ drop (length begin) string
 
 parse :: String -> IO()
 parse string = do
@@ -294,6 +306,12 @@ parse string = do
     else if string =~ hyphenRegex
     then do
         parse $ drop 2 string
+    else if string =~ formRegex
+    then do
+        putStrLn string
+    else if string =~ englishRegex
+    then do
+        parseEnglish string
     else if not (string =~ emptyRegex)
     then do
         putStrLn string
