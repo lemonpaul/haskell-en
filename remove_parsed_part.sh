@@ -9,4 +9,4 @@ sed -ri "/^\(.*?\) $/d" Test.log
 sed -ri "/^=.*$/d" Test.log
 sed -ri "/^(see|past|Syn:|2nd|3rd sg\.|f. of) .*$/d" Test.log
 sed -ri "/^\[.*\] ?$/d" Test.log
-#sed -ri "/^[a-zA-Z\d()'.=/&]+(?:-[a-zA-Z\d()'.=/&]+)*[?!]?,?(?: [a-zA-Z\d()'.=/&]+(?:-[a-zA-Z\d()'.=/&]+)*[?!]?,?)*;?(?:$| )$/d" Test.log
+sed -ri "/^[a-zA-Z\d()'.=/&]+(-[a-zA-Z\d()'.=/&]+)*[!?]?,?( [a-zA-Z\d()'.=/&]+(-[a-zA-Z\d()'.=/&]+)*[!?]?,?)*;?($| )$/d" Test.log
