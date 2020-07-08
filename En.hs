@@ -1,7 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module En where
-
 import System.IO
 import System.IO.Silently
 import Control.Monad
@@ -141,7 +139,7 @@ main = do
             contentsDict <- hGetContents handleDict
             let string = lines contentsDict !! fromJust index
             putStrLn correction
-            parse $ drop (length correction + 1) string
+            parse $ drop (length correction  + 1) string
             hClose handleDict
         else do
             putStrLn "Translation not found"
