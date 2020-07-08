@@ -3,6 +3,7 @@
 module En where
 
 import System.IO
+import System.IO.Silently
 import Control.Monad
 import System.Environment
 import Data.List
@@ -10,7 +11,7 @@ import Data.Maybe
 import Text.Regex.PCRE.Heavy
 import Data.ByteString.UTF8 (fromString)
 import Data.Either (rights)
-import Data.Text (replace, pack, unpack)
+import Data.Text (replace, pack, unpack, splitOn, breakOn)
 
 romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
 romanRegex = regexp ("^" ++ fromArray romanArray ++ " ")
@@ -124,6 +125,10 @@ main = do
     then do
         progName <- getProgName
         putStrLn $ "Usage: " ++ progName ++ " <definition>"
+    else if definition =~ regexp ("^.*[ёа-яА-Я].*$")
+    then do
+        putStrLn definition
+        findRussianWord definition
     else do
         handleList <- openFile "list.dic" ReadMode
         contentsList <- hGetContents handleList
@@ -353,3 +358,37 @@ parse string = do
         putStrLn string
     else
         return ()
+
+splitTranslation :: String -> [String]
+splitTranslation string = do
+    let withoutSemicolumn = replace (pack ";") (pack "") (pack string)
+    let splited = splitOn (pack ", ") withoutSemicolumn
+    map unpack splited
+
+containTranslation :: String -> String -> String -> IO String
+containTranslation word phrase translation = do
+    text <- capture_ $ parse $ drop (length phrase + 1) translation
+    let russianWords = filter (\a -> a =~ regexp ("^[^\\(].*[ёа-яА-Я].*")) (lines text)
+    let words = concat $ map splitTranslation russianWords
+    if any (== word) words
+    then return $ phrase
+    else return $ ""
+
+
+filterTranslations :: String -> [String] -> [String] -> IO()
+filterTranslations word list dictionary = do
+    let translationArray = filter (\a -> a =~ regexp ("^.*" ++ word ++ ".*$")) dictionary
+    let indexArray = map (\a -> fromJust $ elemIndex a dictionary) translationArray
+    stringArray <- sequence $ map (\i -> containTranslation word (list !! i) (dictionary !! i)) indexArray
+    putStrLn $ mconcat $ intersperse ", " $ filter (( /= 0) . length) stringArray
+
+
+findRussianWord :: String -> IO()
+findRussianWord string = do
+    handleDict <- openFile "en.dic" ReadMode
+    contentsDict <- hGetContents handleDict
+    handleList <- openFile "list.dic" ReadMode
+    contentsList <- hGetContents handleList
+    filterTranslations string (lines contentsList) (lines contentsDict)
+    hClose handleDict
+    hClose handleList
