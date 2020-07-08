@@ -92,8 +92,8 @@ wordString = "(" ++ langString ++ "|" ++ speechPartString ++ "|" ++ pastFormStri
              otherString ++ ")"
 wordRegex = regexp ("^" ++ wordString ++ "(;| |$)")
 
-bracketsString = "(\\([^\\(\\)]*?\\)|\\[[^\\[\\]]*?\\])"
-bracketsRegex = regexp ("^" ++ bracketsString ++ " ")
+bracketsString = "(\\(.*?\\)|\\.*?\\])"
+bracketsRegex = regexp ("^" ++ bracketsString ++ ";? ")
 
 linkString = "(?:(?:'|-)?[a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3}(?: [a-zA-Z'./]+(?:-[a-zA-Z'./]+){0,3})*)(?: " ++ optionalFromArray romanArray ++ ")?(?: " ++
              optionalFromArray arabicDotArray ++ ")?(?: " ++ optionalFromArray arabicBracketArray ++ ")?(?: " ++
@@ -104,7 +104,7 @@ hyphenRegex = regexp ("^- ")
 formString = "(see|past|Syn:|2nd|3rd sg\\.|f\\. of)"
 formRegex = regexp ("^" ++ formString ++ " .+$")
 
-russianString = "(-?(?:\\d{1,4} |1/\\d{1,2} |\\d{1,3}-)?(?:[DSVXY]-)?[ёа-яА-Я\\d()'./:!?]+(?:-[ёа-яА-Я\\d()'./:!?]+)*-?,?(?: [ёа-яА-Я\\d()'./:!?]+(?:-[ёа-яА-Я\\d()'./:!?]+)*-?,?)*;?(?: |$))"
+russianString = "-?(?:\\d{1,4} |1/\\d{1,2} |\\d{1,3}-)?(?:[DSVXY]-)?['\"]?[ёа-яА-Я]"
 russianRegex = regexp ("^" ++ russianString ++ ".*$")
 
 englishString = "([a-zA-Z\\d()'.=/&!?]+(?:-[a-zA-Z\\d()'.=/&!?]+)*,?(?: [a-zA-Z\\d()'.=/&!?]+(?:-[a-zA-Z\\d()'.=/&!?]+)*,?)*;?(?:$| ))"
@@ -282,9 +282,33 @@ parseEnglish string = do
 
 parseRussian :: String -> IO()
 parseRussian string = do
-    let begin = (\[(_, a)] -> a !! 0) (scan russianRegex string :: [(String, [String])])
-    putStrLn begin
-    parse $ drop (length begin) string
+    if string =~ regexp "^.* \\[.*\\].*$"
+    then do
+        let begin = (\[(_, a)] -> a !! 0) (scan (regexp "^(.*?) \\[.*$") string)
+        parse begin
+        parse $ drop (length begin + 1) string
+    else if string =~ regexp "^.* \\(.*\\).*$"
+    then do
+        let begin = (\[(_, a)] -> a !! 0) (scan (regexp "^(.*?) \\(.*$") string)
+        parse begin
+        parse $ drop (length begin + 1) string
+    else if string =~ regexp "^.*; .*$"
+    then do
+        let begin = (\[(_, a)] -> a !! 0) (scan (regexp "^(.*?;) .*$") string)
+        parse begin
+        parse $ drop (length begin + 1) string
+    else if string =~ regexp "^.* - .*$"
+    then do
+        let begin = (\[(_, a)] -> a !! 0) (scan (regexp "^(.*?) - .*$") string)
+        parse begin
+        parse $ drop (length begin + 3) string
+    else if string =~ regexp "^.+ [a-zA-Z].*$"
+    then do
+        let begin = (\[(_, a)] -> a !! 0) (scan (regexp "^(.+?) [a-zA-Z].*$") string)
+        parse begin
+        parse $ drop (length begin + 1) string
+    else
+        putStrLn string
 
 parse :: String -> IO()
 parse string = do
