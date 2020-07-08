@@ -12,6 +12,7 @@ import Text.Regex.PCRE.Heavy
 import Data.ByteString.UTF8 (fromString)
 import Data.Either (rights)
 import Data.Text (replace, pack, unpack, splitOn, breakOn)
+import Spell
 
 romanArray = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
 romanRegex = regexp ("^" ++ fromArray romanArray ++ " ")
@@ -132,14 +133,15 @@ main = do
     else do
         handleList <- openFile "list.dic" ReadMode
         contentsList <- hGetContents handleList
-        let index = indexOf definition (lines contentsList)
+        correction <- capture_ $ correct definition
+        let index = indexOf correction (lines contentsList)
         if isJust index
         then do
             handleDict <- openFile "en.dic" ReadMode
             contentsDict <- hGetContents handleDict
             let string = lines contentsDict !! fromJust index
-            putStrLn definition
-            parse $ drop (length definition + 1) string
+            putStrLn correction
+            parse $ drop (length correction + 1) string
             hClose handleDict
         else do
             putStrLn "Translation not found"
